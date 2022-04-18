@@ -3,23 +3,35 @@ from tkinter import messagebox
 import os
 import sqlite3 as sl
 
-#PATH = r"C:/Users/koahn/Desktop/ITM360Sandbox/TermProjectArea"
-#os.chdir(PATH)
-#password_file = 'password.txt'
+# just want to try to push
 
-#connection = sl.connect('GilaBreathDB')
+PATH = r"C:/Users/koahn/Desktop/ITM360Sandbox/TermProjectArea"
+os.chdir(PATH)
+password_file = 'password.txt'
+
+connection = sl.connect('GilaBreathDB')
 
 root =Tk()
 
-rt = Tk()
+def build_CustomerDash():
+    '''
+    a
+    '''
+    root.geometry('500x500')
+    root.title('Your Dashboard')
 
+    CustDash_frame = LabelFrame(root, text='Dashboard', font=('Modern No. 20', 20))
+    CustDash_frame.grid(row=1, column=3)
 
+    Apply_button = Button(root, text='Apply Here', height=3, width=10, padx=2, pady=4)
+    Apply_button.grid(row=2, column=1)
 
+    root.mainloop()
 
 # Application submission command
 def submit_app():
     '''
-     shows user successful messagebox for sucessfully submittin
+     shows user successful messagebox for sucessfully submitting
     '''
     messagebox.showinfo('Application submitted successfully!')
 
@@ -221,54 +233,57 @@ def build_Application():
 
     Submit_Button = Button(root, text='Submit \nApplication', height=4, width=10)
     Submit_Button.grid(row=18, column=7, padx=2, pady=2)
-#Devin Greenhalgh's code--------------------------------------------
-
-def build_CustomerDash():
-    '''
-    a
-    '''
-
-    root = Tk()
-    #maybe you have to create your own variable for Tk()
-    root.geometry('500x500')
-    root.title('Customer Dashboard')
-
-    load=Image.open('Users\devin\Pictures\Tatooart\Tatoo.jpg')
-    render= ImageTk.PhotoImage(load)
-    img=Label(root, image= render)
-    img.place(x=0, y=0)
 
 
-    CustDash_frame = LabelFrame(root, text='Dashboard', font=('Modern No. 20', 20))
-    CustDash_frame.grid(row=1, column=3)
 
-    def logout():
-        root.destroy()
-
-    def info_page():
-        build_Application()
-    def status():
-        top=Toplevel()
-        top.title('Your Status')
-
-
-    Apply_button = Button(root, text='Apply Here', relief='ridge', bd=5, height=3, width=10, padx=2, pady=4, command=info_page)
-    Apply_button.place(x=150, y=100)
-
-    logout_but = Button(root, text='logout', relief='ridge', bd=5, height=3, width=10, padx=2, pady=4, command=logout)
-    logout_but.place(x=265, y=100)
-
-# figure out how to apply database to results-------------------
-    frame_1=LabelFrame(root, text='Number of campers needed')
-    frame_1.place(x=175, y=250)
-
-    inside=Label(frame_1, text='Hi there pal')
-    inside.pack()
 
 
 build_CustomerDash()
 
+# Clerk Dashboard
+from tkinter import *
+
+
+
+root= Tk()
+root.title("Clerk Dashboard")
+root.geometry("600x500")
+root.configure(bg="#d7dae2")
+
+
+
+label_1 = Label(root, text = "Welcome!", font = ("Calibri", 16), padx = 20, pady = 30,bg="#d7dae2")
+label_1.pack()
+
+
+frame = Frame(root)
+
+def check_in():
+    pass
+
+def assign_bunks():
+    pass
+
+def assign_tribes():
+    pass
+
+Button(frame,width =20, text = 'Check In',pady =10,fg="red", command = check_in).pack(side = LEFT)
+Button(frame,width =20, text = 'Assign Bunks',pady=10,fg="green",command = assign_bunks).pack(side = LEFT)
+Button(frame,width=20, text = 'Assign Tribes',pady=10,fg="blue",command = assign_tribes).pack(side = LEFT)
+frame.pack()
+
+
+
+
+
+
+
+
+
+
+
+
 root.mainloop()
-#DG---------------------------------------------------------------------------------------------------------------
+
 
 
