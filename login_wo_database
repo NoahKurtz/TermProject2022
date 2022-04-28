@@ -1,0 +1,223 @@
+from tkinter import *
+from tkinter import messagebox
+import os
+import sqlite3 as sl
+
+PATH = r"C:/Users/matts/Desktop"
+os.chdir(PATH)
+password_file = 'C:/Users/matts/Desktop.txt'
+
+
+#con = sl.connect("loginsystem.db")
+#c = con.cursor()
+ 
+#c.execute("""
+          #CREATE TABLE PROJECT (
+              
+           #   username text,
+           #   password text,
+           #   ParentFName text,
+            #  ParentLName text,
+             # ParentSuffix text,
+              #ParentType text,
+              #ParentGender text,
+              #ParentEmail text,
+              #ParentPhoneNum text,
+              #ParentAddrNum text,
+              #ParentAddrStreet text,
+              #ChildFN text,
+              #ChildLN text,
+              #ChildSex text,
+              #ChildBirthDat text,
+              #ChildGroupPref
+              
+              
+              
+              #)
+          
+          
+          
+          
+          #""")
+
+#con.commit()
+
+#con.close()
+
+def master_screen():
+    global root 
+    root = Tk()  
+    root.geometry("750x460")
+    root.title("Gila Breath Camp - Account Login")
+
+   
+    label_master = Label(root, text = "Welcome to Gila Breath Camp! Login/Register to Continue :)", font = ("Calibri", 20), padx = 90, pady = 70, bg = "Grey")
+    label_master.pack()
+
+
+    
+    frame_master = LabelFrame(root, text = "Make your selection", padx = 30, pady = 30, bg = "Grey")
+    frame_master.pack()
+
+    ##frame_master.pack(padx = 2, pady = 3)
+    
+    
+    Button(frame_master, text="Login", height="5", width="85", command = login).pack(padx = 50, pady = 8) 
+ 
+ 
+   
+    Button(frame_master, text="Register", height="5", width="85", command = register).pack(padx = 50, pady = 8)
+    
+    
+    root.mainloop()
+
+def register():
+    
+    global username
+    global password
+    global username_entry
+    global password_entry
+    global register_screen
+    
+    
+    register_screen = Toplevel(root)
+    register_screen.title("Register")
+    register_screen.geometry("300x250")
+
+    
+    username = StringVar()
+    password = StringVar()
+
+    label_1 = Label(register_screen, text = "Registration ", font = ("Calibri", 14), padx = 15, pady = 20)
+    label_1.pack()
+    
+    
+    frame = LabelFrame(register_screen, text = "Please enter details below", padx = 5, pady = 5)
+    frame.pack(padx = 10, pady = 10)
+    
+    
+    user_label  = Label(frame, text='Username * ', font = ("Calibri", 12)).grid(row=0, sticky=W)
+ 
+     
+    username_entry = Entry(frame, textvariable=username, width = 20)
+    username_entry.grid(row = 0, column =1, sticky = W)
+   
+    
+    password_lable = Label(frame, text="Password * ", font = ("Calibri", 12)).grid(row=1, sticky=W)
+     
+    
+    password_entry = Entry(frame, textvariable=password, width = 20, show='*')
+    password_entry.grid(row=1, column =1, sticky = W)
+    
+    Label(register_screen, text="").pack()
+    
+    
+    Button(register_screen, text="Confirm", width=10, height=1, command= register_user).pack()
+
+
+
+def register_user():
+ 
+    
+    username_info = username.get()
+    password_info = password.get()
+ 
+  
+    file = open(password_file, "a") 
+ 
+    
+    file.write(username_info + "\t")
+    file.write(password_info + "\n")
+    file.close()
+ 
+    username_entry.delete(0, END)
+    password_entry.delete(0, END)
+
+   
+    messagebox.showinfo("Success!",
+                        "You registered successfully!")
+    register_screen.destroy()
+
+
+def login():
+    
+    global login_screen
+    
+    login_screen = Toplevel(root)
+    login_screen.title("Login")
+    login_screen.geometry("300x250")
+
+
+    global password_entry_login
+    global username_entry_login
+    
+    
+    username_verify = StringVar()
+    password_verify = StringVar()
+  
+    label_1 = Label(login_screen, text = "Login ", font = ("Calibri", 14), padx = 15, pady = 20)
+    label_1.pack()
+    
+    
+    frame = LabelFrame(login_screen, text = "Please enter your crendential below", padx = 5, pady = 5)
+    frame.pack(padx = 10, pady = 10)
+    
+    
+    user_label  = Label(frame, text='Username * ', font = ("Calibri", 12)).grid(row=0, sticky=W)
+ 
+   
+    
+    username_entry_login = Entry(frame, width = 20, textvariable = username_verify)
+    username_entry_login.grid(row = 0, column =1, sticky = W)
+   
+    
+    password_lable = Label(frame, text="Password * ", font = ("Calibri", 12)).grid(row=1, sticky=W)
+     
+  
+    password_entry_login = Entry(frame, width = 20, show='*', textvariable = password_verify)
+    password_entry_login.grid(row=1, column =1, sticky = W)
+    
+    Label(login_screen, text="").pack()
+
+    
+    
+    Button(login_screen, text="Confirm", width=10, height=1, command=login_verification).pack()
+
+
+def login_verification():
+    
+    username_verify = username_entry_login.get()
+    password_verify = password_entry_login.get()
+    
+    users = {}
+    if os.path.exists(password_file):
+        with open(password_file, "r") as f:
+            for line in f:
+                user = line.split('\t')[0]
+                pswd = line.split('\t')[1].strip()
+                users[user] = pswd
+            print(users)
+            print(users.keys())
+            
+            if username_verify in users.keys():
+                if users[username_verify] == password_verify:
+                    messagebox.showinfo("Success!",
+                                        'You have login to ITM360 system.')
+                    login_screen.destroy()
+                else:
+                    messagebox.showerror('Warning!',
+                                 "Your Username and Password doesn't match. \nPlease try again")
+            else:
+                messagebox.showerror('Error!',
+                             "User doesn't find.")
+        f.close()
+    else:
+        messagebox.showerror('Error!',
+                             "Please register first!")
+        login_screen.destroy()
+
+
+
+# Call the function
+master_screen()
+
