@@ -1,0 +1,686 @@
+from tkinter import *
+from tkinter import messagebox
+import os
+import sqlite3
+
+
+def master_screen():
+    global root
+    root = Tk()
+    root.geometry("750x460")
+    root.title("Gila Breath Camp - Account Login")
+
+    label_master = Label(root, text="Welcome to Gila Breath Camp! Login/Register to Continue :)", font=("Calibri", 20),
+                         padx=90, pady=70, bg="Grey")
+    label_master.pack()
+
+    frame_master = LabelFrame(root, text="Make your selection", padx=30, pady=30, bg="Grey")
+    frame_master.pack()
+
+    Button(frame_master, text="Login", height="5", width="85", command=login).pack(padx=50, pady=8)
+    Button(frame_master, text="Register", height="5", width="85", command=register).pack(padx=50, pady=8)
+
+    root.mainloop()
+
+
+def register():
+    global register_screen
+    global username
+    global password
+
+    register_screen = Toplevel(root)
+    register_screen.title("Register")
+    register_screen.geometry("300x250")
+
+    username = StringVar()
+    password = StringVar()
+
+    label_1 = Label(register_screen, text="Registration ", font=("Calibri", 14), padx=15, pady=20)
+    label_1.pack()
+
+    frame = LabelFrame(register_screen, text="Please enter details below", padx=5, pady=5)
+    frame.pack(padx=10, pady=10)
+
+    user_label = Label(frame, text='Username * ', font=("Calibri", 12)).grid(row=0, sticky=W)
+    username_entry = Entry(frame, textvariable=username, width=20)
+    username_entry.grid(row=0, column=1, sticky=W)
+
+    password_lable = Label(frame, text="Password * ", font=("Calibri", 12)).grid(row=1, sticky=W)
+    password_entry = Entry(frame, textvariable=password, width=20, show='*')
+    password_entry.grid(row=1, column=1, sticky=W)
+
+    Label(register_screen, text="").pack()
+    Button(register_screen, text="Confirm", width=10, height=1, command=new_user).pack()
+
+
+def new_user():
+    db = sqlite3.connect('users.db')
+    c = db.cursor()
+
+    table1 = """ CREATE TABLE if not exists user
+            (username TEXT NOT NULL PRIMARY KEY,password TEX NOT NULL)
+            """
+    c.execute(table1)
+    db.commit()
+
+    username_info = username.get()
+    password_info = password.get()
+    find_user = ('SELECT username FROM user WHERE username = ?')
+    c.execute(find_user, [(username_info)])
+
+    if c.fetchall():
+        messagebox.showinfo('Error!', 'Username Taken Try a Diffrent One.')
+
+    elif (username_info == "" or password_info == ""):
+        messagebox.showinfo("Error!", "Fields cannot be empty!")
+
+    else:
+        insert = 'INSERT INTO user(username,password) VALUES(?,?)'
+        c.execute(insert, [(username_info), (password_info)])
+        db.commit()
+        messagebox.showinfo("Success!", "You registered successfully!")
+        register_screen.destroy()
+
+
+def login():
+    global login_screen
+    global username_verify
+    global password_verify
+
+    login_screen = Toplevel(root)
+    login_screen.title("Login")
+    login_screen.geometry("300x250")
+
+    username_verify = StringVar()
+    password_verify = StringVar()
+
+    label_1 = Label(login_screen, text="Login ", font=("Calibri", 14), padx=15, pady=20)
+    label_1.pack()
+
+    frame = LabelFrame(login_screen, text="Please enter your crendential below", padx=5, pady=5)
+    frame.pack(padx=10, pady=10)
+
+    user_label = Label(frame, text='Username * ', font=("Calibri", 12)).grid(row=0, sticky=W)
+    username_entry_login = Entry(frame, width=20, textvariable=username_verify)
+    username_entry_login.grid(row=0, column=1, sticky=W)
+
+    password_lable = Label(frame, text="Password * ", font=("Calibri", 12)).grid(row=1, sticky=W)
+    password_entry_login = Entry(frame, width=20, show='*', textvariable=password_verify)
+    password_entry_login.grid(row=1, column=1, sticky=W)
+
+    Label(login_screen, text="").pack()
+    Button(login_screen, text="Confirm", width=10, height=1, command=login_user).pack()
+
+
+def login_user():
+    username_verify_info = username_verify.get()
+    password_verify_info = password_verify.get()
+
+    # Establish Connection
+    db = sqlite3.connect('users.db')
+    c = db.cursor()
+
+    # Find user If there is any take proper action
+    find_user = ('SELECT * FROM user WHERE username = ? and password = ?')
+    c.execute(find_user, [(username_verify_info), (password_verify_info)])
+    result = c.fetchall()
+
+    if result:
+        messagebox.showinfo("Success!", "You have Login successfully!")
+        login_screen.destroy()
+        root.destroy()
+        build_Application()
+
+    elif (username_verify_info == "admin" or password_verify_info == "admin"):
+        messagebox.showinfo("Success!", "Clerk Login successfull!")
+        login_screen.destroy()
+        root.destroy()
+        clerk_dashboard()
+
+    elif (username_verify_info == "" or password_verify_info == ""):
+        messagebox.showinfo("Error!", "Fields cannot be empty!")
+
+    else:
+        messagebox.showinfo("Error!", "Incorrect user or password")
+
+
+
+def build_Application():
+    #     Parent Info
+    global parent_first_name
+    global parent_last_name
+    global parent_suffix
+    global parent_type
+    global parent_gender
+    global parent_email
+    global parent_phone
+    global parent_address
+
+    #     Child Info
+    global child_first_name
+    global child_last_name
+    global child_sex
+    global child_age
+    global child_group
+
+    root = Tk()
+    root.geometry("1300x400")
+    root.title("Gila Breath Camp Application")
+
+    parent_first_name = StringVar()
+    parent_last_name = StringVar()
+    parent_suffix = StringVar()
+    parent_type = StringVar()
+    parent_gender = StringVar()
+    parent_email = StringVar()
+    parent_phone = StringVar()
+    parent_address = StringVar()
+
+    #     Child Info
+    child_first_name = StringVar()
+    child_last_name = StringVar()
+    child_sex = StringVar()
+    child_age = StringVar()
+    child_group = StringVar()
+
+    label_applicaiton = Label(root, text='Gila Breath Applicaiton Form',
+                              font=('Modern No. 20', 20), padx=1, pady=1)
+    label_applicaiton.grid(row=1, column=4)
+
+    instructions_txt = 'Please fill out the following information to \napply for the Gila Breath Camp. This form' \
+                       ' should\n be completed at least two months prior to the camps start date. '
+    label_app_instructions = Label(root, text=instructions_txt,
+                                   font=('Calibri', 10))
+    label_app_instructions.grid(row=2, column=4, padx=1, pady=1)
+
+    ParentInfo_Section = Label(root, text='Enter Parental Information Here ----------------------')
+    ParentInfo_Section.grid(row=3, column=1, padx=3, pady=3)
+
+    ChildInfo_Section = Label(root, text='Enter Childs Information Here ------------------')
+    ChildInfo_Section.grid(row=13, column=1, padx=1, pady=1)
+
+    # Creating labels for entry fields
+    ParentFName_entrylabel = Label(root, text='First Name: ')
+    ParentFName_entrylabel.grid(row=4, column=1, padx=1, pady=1)
+
+    ParentLName_entrylabel = Label(root, text='Last Name: ')
+    ParentLName_entrylabel.grid(row=4, column=3, padx=1, pady=1)
+
+    ParentSuffix_entrylabel = Label(root, text='Suffix: ')
+    ParentSuffix_entrylabel.grid(row=4, column=5, padx=1, pady=1)
+
+    ParentType_entrylabel = Label(root, text='Parent Type: ')
+    ParentType_entrylabel.grid(row=5, column=1, padx=1, pady=1)
+
+    ParentGender_entrylabel = Label(root, text='Parent Gender: ')
+    ParentGender_entrylabel.grid(row=5, column=3, padx=1, pady=1)
+
+    ParentEmail_entrylabel = Label(root, text='Parent Email: ')
+    ParentEmail_entrylabel.grid(row=6, column=1, padx=1, pady=1)
+
+    ParentPhoneNum_entrylabel = Label(root, text='Parent Phone Number: ')
+    ParentPhoneNum_entrylabel.grid(row=6, column=3, padx=1, pady=1)
+
+    ParentAddrNum_entrylabel = Label(root, text='Parent Street Address : ')
+    ParentAddrNum_entrylabel.grid(row=6, column=5, padx=1, pady=1)
+
+    ChildFName_entryLabel = Label(root, text='First Name: ')
+    ChildFName_entryLabel.grid(row=14, column=1, padx=1, pady=1)
+
+    ChildLName_entryLabel = Label(root, text='Last Name: ')
+    ChildLName_entryLabel.grid(row=14, column=3, padx=1, pady=1)
+
+    ChildSex_entryLabel = Label(root, text='Sex: ')
+    ChildSex_entryLabel.grid(row=14, column=5, padx=1, pady=1)
+
+    ChildBirthDate_entryLabel = Label(root, text='Age: ')
+    ChildBirthDate_entryLabel.grid(row=15, column=1, padx=1, pady=1)
+
+    ChildGroupPref_entryLabel = Label(root, text='Grouping Preferences: ')
+    ChildGroupPref_entryLabel.grid(row=15, column=3, padx=1, pady=1)
+
+    # Creating input fields
+    FName_Entry = Entry(root, textvariable=parent_first_name)
+    FName_Entry.grid(row=4, column=2, padx=1, pady=1)
+
+    LName_Entry = Entry(root, textvariable=parent_last_name)
+    LName_Entry.grid(row=4, column=4, padx=1, pady=1)
+
+    Suffix_Entry = Entry(root, textvariable=parent_suffix)
+    Suffix_Entry.grid(row=4, column=6, padx=1, pady=1)
+
+    ParentType_Entry = Entry(root, textvariable=parent_type)
+    ParentType_Entry.grid(row=5, column=2, padx=1, pady=1)
+
+    ParentGender_Entry = Entry(root, textvariable=parent_gender)
+    ParentGender_Entry.grid(row=5, column=4, padx=1, pady=1)
+
+    ParentEmail_Entry = Entry(root, textvariable=parent_email)
+    ParentEmail_Entry.grid(row=6, column=2, padx=1, pady=1)
+
+    ParentPhone_Entry = Entry(root, textvariable=parent_phone)
+    ParentPhone_Entry.grid(row=6, column=4, padx=1, pady=1)
+
+    ParentAddyNum_Entry = Entry(root, textvariable=parent_address)
+    ParentAddyNum_Entry.grid(row=6, column=6, padx=1, pady=1)
+
+    ChildFName_Entry = Entry(root, textvariable=child_first_name)
+    ChildFName_Entry.grid(row=14, column=2, padx=1, pady=1)
+
+    ChildLName_Entry = Entry(root, textvariable=child_last_name)
+    ChildLName_Entry.grid(row=14, column=4, padx=1, pady=1)
+
+    ChildSex_Entry = Entry(root, textvariable=child_sex)
+    ChildSex_Entry.grid(row=14, column=6, padx=1, pady=1)
+
+    ChildBirthDate_Entry = Entry(root, textvariable=child_age)
+    ChildBirthDate_Entry.grid(row=15, column=2, padx=1, pady=1)
+
+    ChildGroupPref_Entry = Entry(root, textvariable=child_group)
+    ChildGroupPref_Entry.grid(row=15, column=4, padx=1, pady=1)
+
+    # Create the form buttons
+
+    Next_Button = Button(root, text='Next Page', height='4', width='10', command=emergency_contacts)
+    Next_Button.grid(row=18, column=6, padx=2, pady=2)
+
+    root.mainloop()
+
+
+def emergency_contacts():
+    global emergency_contact_value
+
+    root = Tk()
+    root.geometry("700x250")
+    root.title("Gila Breath Camp Application")
+
+    emergency_contact_value = StringVar()
+
+    label_applicaiton = Label(root, text='Gila Breath Applicaiton Form',
+                              font=('Modern No. 20', 20), padx=1, pady=1)
+    label_applicaiton.grid(row=1, column=3)
+
+    instructions_txt = 'Please fill out the following information to \napply for the Gila Breath Camp. This form' \
+                       ' should\n be completed at least two months prior to the camps start date. '
+    label_app_instructions = Label(root, text=instructions_txt,
+                                   font=('Calibri', 10))
+    label_app_instructions.grid(row=2, column=3, padx=1, pady=1)
+
+    EmergencyContact_Section = Label(root, text='')
+    EmergencyContact_Section.grid(row=4, column=2, padx=3, pady=3)
+
+    EmergencyContact_Section = Label(root, text='                      ')
+    EmergencyContact_Section.grid(row=5, column=2, padx=3, pady=3)
+
+    EmergencyContact_Section = Label(root,
+                                     text='Enter Emergency Contact Information Here, Provide First Name and Phone Number:')
+    EmergencyContact_Section.grid(row=5, column=3, padx=3, pady=3)
+
+    EmergencyContact_Entry = Entry(root, textvariable=emergency_contact_value)
+    EmergencyContact_Entry.grid(row=5, column=4, padx=1, pady=1)
+
+    Next_Button = Button(root, text='Next Page', height='4', width='10', command=confirmation)
+    Next_Button.grid(row=18, column=4, padx=2, pady=2)
+
+    root.mainloop()
+
+
+def confirmation():
+    root = Tk()
+
+    root.geometry("550x350")
+    root.title("Gila Breath Camp Application")
+
+    label_applicaiton = Label(root, text='Gila Breath Applicaiton Form',
+                              font=('Modern No. 20', 20), padx=1, pady=1)
+    label_applicaiton.grid(row=1, column=3)
+
+    instructions_txt = 'Please fill out the following information to \napply for the Gila Breath Camp. This form' \
+                       ' should\n be completed at least two months prior to the camps start date. '
+    label_app_instructions = Label(root, text=instructions_txt,
+                                   font=('Calibri', 10))
+    label_app_instructions.grid(row=2, column=3, padx=1, pady=1)
+
+    abc = Label(root, text='')
+    abc.grid(row=4, column=2, padx=3, pady=3)
+
+    abc = Label(root, text='                      ')
+    abc.grid(row=5, column=2, padx=3, pady=3)
+    confirmation_textt = "Make sure you have all required equipment before submitting! \nriding helmet \nboots \nsleepong bag \nwater bottle \nsunscreen \nbug spray"
+    confirmation_label = Label(root, text=confirmation_textt, font=('Calibri', 12))
+    confirmation_label.grid(row=5, column=3, padx=3, pady=3)
+
+    Next_Button = Button(root, text='Save & Submit', height='4', width='15', command=save_and_submit)
+    Next_Button.grid(row=18, column=3, padx=2, pady=2)
+
+    root.mainloop()
+    
+
+
+def save_and_submit():
+    db = sqlite3.connect('users.db')
+    c = db.cursor()
+    table1 = """ CREATE TABLE if not exists formdata
+            (pfirstname TEXT NOT NULL ,plastname TEXT NOT NULL ,psuffix TEXT NOT NULL ,ptype TEXT NOT NULL ,pgender TEXT NOT NULL ,pemail TEXT NOT NULL ,pphone TEXT NOT NULL ,paddress TEXT NOT NULL ,cfirstname TEXT NOT NULL ,clastname TEXT NOT NULL ,csex TEXT NOT NULL ,cage TEXT NOT NULL ,cgroup TEXT NOT NULL ,cemergency TEXT NOT NULL)
+            """
+    c.execute(table1)
+    db.commit()
+
+    print(emergency_contact_value.get())
+    insert = 'INSERT INTO formdata(pfirstname,plastname,psuffix,ptype,pgender,pemail,pphone,paddress,cfirstname,clastname,csex,cage,cgroup,cemergency) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)'
+    c.execute(insert, [(parent_first_name.get()), (parent_last_name.get()), (parent_suffix.get()), (parent_type.get()),
+                       (parent_gender.get()), (parent_email.get()), (parent_phone.get()), (parent_address.get()),
+                       (child_first_name.get()), (child_last_name.get()), (child_sex.get()), (child_age.get()),
+                       (child_group.get()), (emergency_contact_value.get())])
+    db.commit()
+    messagebox.showinfo("Success!", "You submitted successfully!")
+    
+    
+def clerk_application():
+
+    root= Tk()
+    root.title("Clerk Dashboard")
+    root.geometry("600x500")
+    root.configure(bg="#d7dae2")
+
+    label_1 = Label(root, text = "Welcome!", font = ("Calibri", 16), padx = 20, pady = 30,bg="#d7dae2")
+    label_1.pack()
+    
+    frame = Frame(root)
+
+    def check_in():
+        db = sqlite3.connect('users.db')
+        c = db.cursor()
+        c.execute("SELECT * From formdata")
+        records = c.fetchall()
+
+        db = sqlite3.connect('users.db')
+        c = db.cursor()
+        c.execute("DROP TABLE IF EXISTS accepted")
+        table1 = """ CREATE TABLE if not exists accepted
+                (pfirstname TEXT NOT NULL ,plastname TEXT NOT NULL ,psuffix TEXT NOT NULL ,ptype TEXT NOT NULL ,pgender TEXT NOT NULL ,pemail TEXT NOT NULL ,pphone TEXT NOT NULL ,paddress TEXT NOT NULL ,cfirstname TEXT NOT NULL ,clastname TEXT NOT NULL ,csex TEXT NOT NULL ,cage TEXT NOT NULL ,cgroup TEXT NOT NULL ,cemergency TEXT NOT NULL)
+                """
+        c.execute(table1)
+        db.commit()
+
+        for record in records:
+            insert = 'INSERT INTO accepted(pfirstname,plastname,psuffix,ptype,pgender,pemail,pphone,paddress,cfirstname,clastname,csex,cage,cgroup,cemergency) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)'
+            c.execute(insert,[record[0],record[1],record[2],record[3],record[4],record[5],record[6],record[7],record[8],record[9],record[10],record[11],record[12],record[13]])
+            db.commit()
+            
+        messagebox.showinfo("Success!","Checked-In Successfully")
+        
+
+    def assign_bunks():
+        db = sqlite3.connect('users.db')
+        c = db.cursor()
+        c.execute("SELECT * From accepted")
+        records = c.fetchall()
+
+        db = sqlite3.connect('users.db')
+        c = db.cursor()
+
+        c.execute("DROP TABLE IF EXISTS male12")
+        male12 = """ CREATE TABLE if not exists male12
+                (pfirstname TEXT NOT NULL ,plastname TEXT NOT NULL ,psuffix TEXT NOT NULL ,ptype TEXT NOT NULL ,pgender TEXT NOT NULL ,pemail TEXT NOT NULL ,pphone TEXT NOT NULL ,paddress TEXT NOT NULL ,cfirstname TEXT NOT NULL ,clastname TEXT NOT NULL ,csex TEXT NOT NULL ,cage TEXT NOT NULL ,cgroup TEXT NOT NULL ,cemergency TEXT NOT NULL)
+                """
+        c.execute(male12)
+
+        c.execute("DROP TABLE IF EXISTS male15")
+        male15 = """ CREATE TABLE if not exists male15
+                (pfirstname TEXT NOT NULL ,plastname TEXT NOT NULL ,psuffix TEXT NOT NULL ,ptype TEXT NOT NULL ,pgender TEXT NOT NULL ,pemail TEXT NOT NULL ,pphone TEXT NOT NULL ,paddress TEXT NOT NULL ,cfirstname TEXT NOT NULL ,clastname TEXT NOT NULL ,csex TEXT NOT NULL ,cage TEXT NOT NULL ,cgroup TEXT NOT NULL ,cemergency TEXT NOT NULL)
+                """
+        c.execute(male15)
+
+        c.execute("DROP TABLE IF EXISTS male17")
+        male17 = """ CREATE TABLE if not exists male17
+                (pfirstname TEXT NOT NULL ,plastname TEXT NOT NULL ,psuffix TEXT NOT NULL ,ptype TEXT NOT NULL ,pgender TEXT NOT NULL ,pemail TEXT NOT NULL ,pphone TEXT NOT NULL ,paddress TEXT NOT NULL ,cfirstname TEXT NOT NULL ,clastname TEXT NOT NULL ,csex TEXT NOT NULL ,cage TEXT NOT NULL ,cgroup TEXT NOT NULL ,cemergency TEXT NOT NULL)
+                """
+        c.execute(male17)
+
+        c.execute("DROP TABLE IF EXISTS female12")
+        female12 = """ CREATE TABLE if not exists female12
+                (pfirstname TEXT NOT NULL ,plastname TEXT NOT NULL ,psuffix TEXT NOT NULL ,ptype TEXT NOT NULL ,pgender TEXT NOT NULL ,pemail TEXT NOT NULL ,pphone TEXT NOT NULL ,paddress TEXT NOT NULL ,cfirstname TEXT NOT NULL ,clastname TEXT NOT NULL ,csex TEXT NOT NULL ,cage TEXT NOT NULL ,cgroup TEXT NOT NULL ,cemergency TEXT NOT NULL)
+                """
+        c.execute(female12)
+
+        c.execute("DROP TABLE IF EXISTS female15")
+        female15 = """ CREATE TABLE if not exists female15
+                (pfirstname TEXT NOT NULL ,plastname TEXT NOT NULL ,psuffix TEXT NOT NULL ,ptype TEXT NOT NULL ,pgender TEXT NOT NULL ,pemail TEXT NOT NULL ,pphone TEXT NOT NULL ,paddress TEXT NOT NULL ,cfirstname TEXT NOT NULL ,clastname TEXT NOT NULL ,csex TEXT NOT NULL ,cage TEXT NOT NULL ,cgroup TEXT NOT NULL ,cemergency TEXT NOT NULL)
+                """
+        c.execute(female15)
+
+        c.execute("DROP TABLE IF EXISTS female17")
+        female17 = """ CREATE TABLE if not exists female17
+                (pfirstname TEXT NOT NULL ,plastname TEXT NOT NULL ,psuffix TEXT NOT NULL ,ptype TEXT NOT NULL ,pgender TEXT NOT NULL ,pemail TEXT NOT NULL ,pphone TEXT NOT NULL ,paddress TEXT NOT NULL ,cfirstname TEXT NOT NULL ,clastname TEXT NOT NULL ,csex TEXT NOT NULL ,cage TEXT NOT NULL ,cgroup TEXT NOT NULL ,cemergency TEXT NOT NULL)
+                """
+        c.execute(female17)
+
+        db.commit()
+
+        for record in records:
+            if((record[11]=="9" or record[11]=="10" or record[11]=="11" or record[11]=="12") and record[10]=="male"):
+                insert = 'INSERT INTO male12(pfirstname,plastname,psuffix,ptype,pgender,pemail,pphone,paddress,cfirstname,clastname,csex,cage,cgroup,cemergency) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)'
+                c.execute(insert,[record[0],record[1],record[2],record[3],record[4],record[5],record[6],record[7],record[8],record[9],record[10],record[11],record[12],record[13]])
+                db.commit()
+                print("male12")
+
+            elif((record[11]=="13" or record[11]=="14" or record[11]=="15") and record[10]=="male"):
+                insert = 'INSERT INTO male15(pfirstname,plastname,psuffix,ptype,pgender,pemail,pphone,paddress,cfirstname,clastname,csex,cage,cgroup,cemergency) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)'
+                c.execute(insert,[record[0],record[1],record[2],record[3],record[4],record[5],record[6],record[7],record[8],record[9],record[10],record[11],record[12],record[13]])
+                db.commit()
+                print("male15")
+
+            elif((record[11]=="16" or record[11]=="17" or record[11]=="18") and record[10]=="male"):
+                insert = 'INSERT INTO male17(pfirstname,plastname,psuffix,ptype,pgender,pemail,pphone,paddress,cfirstname,clastname,csex,cage,cgroup,cemergency) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)'
+                c.execute(insert,[record[0],record[1],record[2],record[3],record[4],record[5],record[6],record[7],record[8],record[9],record[10],record[11],record[12],record[13]])
+                db.commit()
+                print("male17")
+
+            elif((record[11]=="9" or record[11]=="10" or record[11]=="11" or record[11]=="12") and record[10]=="female"):
+                insert = 'INSERT INTO female12(pfirstname,plastname,psuffix,ptype,pgender,pemail,pphone,paddress,cfirstname,clastname,csex,cage,cgroup,cemergency) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)'
+                c.execute(insert,[record[0],record[1],record[2],record[3],record[4],record[5],record[6],record[7],record[8],record[9],record[10],record[11],record[12],record[13]])
+                db.commit()
+                print("female12")
+
+            elif((record[11]=="13" or record[11]=="14" or record[11]=="15") and record[10]=="female"):
+                insert = 'INSERT INTO female15(pfirstname,plastname,psuffix,ptype,pgender,pemail,pphone,paddress,cfirstname,clastname,csex,cage,cgroup,cemergency) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)'
+                c.execute(insert,[record[0],record[1],record[2],record[3],record[4],record[5],record[6],record[7],record[8],record[9],record[10],record[11],record[12],record[13]])
+                db.commit()
+                print("female15")
+
+            elif((record[11]=="16" or record[11]=="17" or record[11]=="18") and record[10]=="female"):
+                insert = 'INSERT INTO female17(pfirstname,plastname,psuffix,ptype,pgender,pemail,pphone,paddress,cfirstname,clastname,csex,cage,cgroup,cemergency) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)'
+                c.execute(insert,[record[0],record[1],record[2],record[3],record[4],record[5],record[6],record[7],record[8],record[9],record[10],record[11],record[12],record[13]])
+                db.commit()
+                print("female17")
+        messagebox.showinfo("Success!","Bunk Assignment Successful")
+
+    def assign_tribes():
+        db = sqlite3.connect('users.db')
+        c = db.cursor()
+        c.execute("SELECT * From accepted")
+        records = c.fetchall()
+
+        db = sqlite3.connect('users.db')
+        c = db.cursor()
+
+        c.execute("DROP TABLE IF EXISTS groupA")
+        groupA = """ CREATE TABLE if not exists groupA
+                (pfirstname TEXT NOT NULL ,plastname TEXT NOT NULL ,psuffix TEXT NOT NULL ,ptype TEXT NOT NULL ,pgender TEXT NOT NULL ,pemail TEXT NOT NULL ,pphone TEXT NOT NULL ,paddress TEXT NOT NULL ,cfirstname TEXT NOT NULL ,clastname TEXT NOT NULL ,csex TEXT NOT NULL ,cage TEXT NOT NULL ,cgroup TEXT NOT NULL ,cemergency TEXT NOT NULL)
+                """
+        c.execute(groupA)
+
+        c.execute("DROP TABLE IF EXISTS groupB")
+        groupB = """ CREATE TABLE if not exists groupB
+                (pfirstname TEXT NOT NULL ,plastname TEXT NOT NULL ,psuffix TEXT NOT NULL ,ptype TEXT NOT NULL ,pgender TEXT NOT NULL ,pemail TEXT NOT NULL ,pphone TEXT NOT NULL ,paddress TEXT NOT NULL ,cfirstname TEXT NOT NULL ,clastname TEXT NOT NULL ,csex TEXT NOT NULL ,cage TEXT NOT NULL ,cgroup TEXT NOT NULL ,cemergency TEXT NOT NULL)
+                """
+        c.execute(groupB)
+
+        c.execute("DROP TABLE IF EXISTS groupC")
+        groupC = """ CREATE TABLE if not exists groupC
+                (pfirstname TEXT NOT NULL ,plastname TEXT NOT NULL ,psuffix TEXT NOT NULL ,ptype TEXT NOT NULL ,pgender TEXT NOT NULL ,pemail TEXT NOT NULL ,pphone TEXT NOT NULL ,paddress TEXT NOT NULL ,cfirstname TEXT NOT NULL ,clastname TEXT NOT NULL ,csex TEXT NOT NULL ,cage TEXT NOT NULL ,cgroup TEXT NOT NULL ,cemergency TEXT NOT NULL)
+                """
+        c.execute(groupC)
+
+        c.execute("DROP TABLE IF EXISTS groupD")
+        groupD = """ CREATE TABLE if not exists groupD
+                (pfirstname TEXT NOT NULL ,plastname TEXT NOT NULL ,psuffix TEXT NOT NULL ,ptype TEXT NOT NULL ,pgender TEXT NOT NULL ,pemail TEXT NOT NULL ,pphone TEXT NOT NULL ,paddress TEXT NOT NULL ,cfirstname TEXT NOT NULL ,clastname TEXT NOT NULL ,csex TEXT NOT NULL ,cage TEXT NOT NULL ,cgroup TEXT NOT NULL ,cemergency TEXT NOT NULL)
+                """
+        c.execute(groupD)
+
+        c.execute("DROP TABLE IF EXISTS groupE")
+        groupE = """ CREATE TABLE if not exists groupE
+                (pfirstname TEXT NOT NULL ,plastname TEXT NOT NULL ,psuffix TEXT NOT NULL ,ptype TEXT NOT NULL ,pgender TEXT NOT NULL ,pemail TEXT NOT NULL ,pphone TEXT NOT NULL ,paddress TEXT NOT NULL ,cfirstname TEXT NOT NULL ,clastname TEXT NOT NULL ,csex TEXT NOT NULL ,cage TEXT NOT NULL ,cgroup TEXT NOT NULL ,cemergency TEXT NOT NULL)
+                """
+        c.execute(groupE)
+
+        c.execute("DROP TABLE IF EXISTS groupF")
+        groupF = """ CREATE TABLE if not exists groupF
+                (pfirstname TEXT NOT NULL ,plastname TEXT NOT NULL ,psuffix TEXT NOT NULL ,ptype TEXT NOT NULL ,pgender TEXT NOT NULL ,pemail TEXT NOT NULL ,pphone TEXT NOT NULL ,paddress TEXT NOT NULL ,cfirstname TEXT NOT NULL ,clastname TEXT NOT NULL ,csex TEXT NOT NULL ,cage TEXT NOT NULL ,cgroup TEXT NOT NULL ,cemergency TEXT NOT NULL)
+                """
+        c.execute(groupF)
+
+        db.commit()
+
+        for record in records:
+            if(len(records)<12):
+                insert = 'INSERT INTO groupA(pfirstname,plastname,psuffix,ptype,pgender,pemail,pphone,paddress,cfirstname,clastname,csex,cage,cgroup,cemergency) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)'
+                c.execute(insert,[record[0],record[1],record[2],record[3],record[4],record[5],record[6],record[7],record[8],record[9],record[10],record[11],record[12],record[13]])
+                db.commit()
+                print("male12")
+
+            elif(len(records)<24):
+                insert = 'INSERT INTO groupB(pfirstname,plastname,psuffix,ptype,pgender,pemail,pphone,paddress,cfirstname,clastname,csex,cage,cgroup,cemergency) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)'
+                c.execute(insert,[record[0],record[1],record[2],record[3],record[4],record[5],record[6],record[7],record[8],record[9],record[10],record[11],record[12],record[13]])
+                db.commit()
+                print("male15")
+
+            elif(len(records)<36):
+                insert = 'INSERT INTO groupC(pfirstname,plastname,psuffix,ptype,pgender,pemail,pphone,paddress,cfirstname,clastname,csex,cage,cgroup,cemergency) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)'
+                c.execute(insert,[record[0],record[1],record[2],record[3],record[4],record[5],record[6],record[7],record[8],record[9],record[10],record[11],record[12],record[13]])
+                db.commit()
+                print("male17")
+
+            elif(len(records)<48):
+                insert = 'INSERT INTO groupD(pfirstname,plastname,psuffix,ptype,pgender,pemail,pphone,paddress,cfirstname,clastname,csex,cage,cgroup,cemergency) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)'
+                c.execute(insert,[record[0],record[1],record[2],record[3],record[4],record[5],record[6],record[7],record[8],record[9],record[10],record[11],record[12],record[13]])
+                db.commit()
+                print("female12")
+
+            elif(len(records)<60):
+                insert = 'INSERT INTO groupE(pfirstname,plastname,psuffix,ptype,pgender,pemail,pphone,paddress,cfirstname,clastname,csex,cage,cgroup,cemergency) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)'
+                c.execute(insert,[record[0],record[1],record[2],record[3],record[4],record[5],record[6],record[7],record[8],record[9],record[10],record[11],record[12],record[13]])
+                db.commit()
+                print("female15")
+
+            elif(len(records)<72):
+                insert = 'INSERT INTO groupF(pfirstname,plastname,psuffix,ptype,pgender,pemail,pphone,paddress,cfirstname,clastname,csex,cage,cgroup,cemergency) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)'
+                c.execute(insert,[record[0],record[1],record[2],record[3],record[4],record[5],record[6],record[7],record[8],record[9],record[10],record[11],record[12],record[13]])
+                db.commit()
+                print("female17")
+        messagebox.showinfo("Success!","Tribe Assignment Successful")
+
+    Button(frame,width =20, text = 'Check In',pady =10,fg="red", command = check_in).pack(side = LEFT)
+    Button(frame,width =20, text = 'Assign Bunks',pady=10,fg="green",command = assign_bunks).pack(side = LEFT)
+    Button(frame,width=20, text = 'Assign Tribes',pady=10,fg="blue",command = assign_tribes).pack(side = LEFT)
+    frame.pack()
+
+    root.mainloop()
+    
+    
+    # To Check Application Data
+import sqlite3
+
+def show_form_data():
+        conn = sqlite3.connect('users.db')
+        c = conn.cursor()
+        c.execute("SELECT * From formdata")
+        records = c.fetchall()
+        print_records = ''
+        for record in records:
+            print(record)
+#             print_records += str(record[0])+"  "+"\n"+str(record[1])+"  "+str(record[2])+"  "+str(record[3])+"  "+str(record[4])+"  "+str(record[5])+"  "+str(record[6])+"  "+str(record[7])+"  "+str(record[8])+"  "+str(record[9])+"  "+str(record[10])+"  "+str(record[11])+"  "+str(record[12])+"  "+str(record[13])+"  "+str(record[14])+"  "+str(record[15])+"  "+str(record[16])+"  "+str(record[17])+"  "+str(record[18])+"  "+str(record[19])+"  "+str(record[20])+"  "+str(record[21])+"  "+str(record[22])+"  "+str(record[23])
+
+        
+show_form_data()
+
+
+# To Check Accepted Checked-In Data
+
+import sqlite3
+
+def show_accepted():
+        conn = sqlite3.connect('users.db')
+        c = conn.cursor()
+        c.execute("SELECT * From accepted")
+        records = c.fetchall()
+        print_records = ''
+        for record in records:
+            print(record)
+
+show_accepted()
+
+
+# To Check Users
+
+import sqlite3
+
+def show_users():
+        conn = sqlite3.connect('users.db')
+        c = conn.cursor()
+        c.execute("SELECT * From user")
+        records = c.fetchall()
+        print_records = ''
+        for record in records:
+            print(record)
+
+show_users()
+
+
+
+
+import sqlite3
+# male12 for 9-12 male
+# male15 for 13-15 male
+# male17 for 16-18 male
+
+# female12 for 9-12 female
+# female15 for 13-15 female
+# female17 for 16-18 female
+
+def bunk():
+    conn = sqlite3.connect('users.db')
+    c = conn.cursor()
+    c.execute("SELECT * From male15")
+    records = c.fetchall()
+    print_records = ''
+    for record in records:
+        print(record)
+#         print(record[10])
+#         print(record[11])
+
+bunk()
+
+#---------
+import sqlite3
+
+# groupA
+# groupB
+# groupC
+# groupD
+# groupE
+# groupF
+
+def tribe():
+    conn = sqlite3.connect('users.db')
+    c = conn.cursor()
+    c.execute("SELECT * From groupA")
+    records = c.fetchall()
+    print_records = ''
+    for record in records:
+        print(record)
+#         print(record[10])
+#         print(record[11])
+
+tribe()
